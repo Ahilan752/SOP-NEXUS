@@ -1,0 +1,47 @@
+# ============================================
+# SOP NEXUS - Root .gitignore
+# ============================================
+
+# Dependencies (recreated with npm install)
+node_modules/
+**/node_modules/
+
+# Environment Variables (NEVER push these - contains passwords!)
+.env
+**/.env
+.env.local
+.env.production
+.env.development
+
+# Build outputs (recreated automatically)
+dist/
+**/dist/
+build/
+
+# Uploaded files (too large + private data)
+backend/uploads/
+
+# Logs
+logs/
+*.log
+backend/logs/
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editor files
+.vscode/settings.json
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+
+# TypeScript cache
+*.tsbuildinfo
+
+# Temp files
+*.tmp
+*.temp
