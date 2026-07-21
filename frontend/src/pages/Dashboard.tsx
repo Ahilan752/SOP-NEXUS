@@ -292,7 +292,7 @@ export const Dashboard: React.FC = () => {
           {/* Main List */}
           <div className="lg:col-span-2 space-y-6">
             {/* Metrics cards */}
-            <div className="grid grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <div className="glass-panel p-5 rounded-2xl border border-slate-800/80 text-center">
                 <FileWarning className="w-5 h-5 text-amber-400 mx-auto mb-1.5" />
                 <span className="text-[9px] text-slate-500 font-bold uppercase tracking-wider">Unread SOPs</span>

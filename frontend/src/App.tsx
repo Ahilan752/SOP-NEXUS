@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { useAppStore } from './context/store';
 import { Sidebar } from './components/Sidebar';
@@ -13,7 +13,7 @@ import { UserManager } from './pages/UserManager';
 import { AuditLogs } from './pages/AuditLogs';
 import { Profile } from './pages/Profile';
 import { MyLibrary } from './pages/MyLibrary';
-import { Bell, User as UserIcon } from 'lucide-react';
+import { Bell, User as UserIcon, Menu } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 // Wrapper to require auth
@@ -44,7 +44,13 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode; requiredPermission?:
 // Layout component wrapping logged-in views
 const Layout: React.FC = () => {
   const { user, notifications, fetchNotifications, markNotificationRead } = useAppStore();
-  const [showNotifications, setShowNotifications] = React.useState(false);
+  const [showNotifications, setShowNotifications] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  const location = useLocation();
+  useEffect(() => {
+    setSidebarOpen(false);
+  }, [location.pathname]);
 
   useEffect(() => {
     fetchNotifications();
@@ -57,12 +63,30 @@ const Layout: React.FC = () => {
 
   return (
     <div className="flex min-h-screen bg-[#030712] text-slate-100 selection:bg-primary-500/30">
-      <Sidebar />
-      <div className="flex-1 flex flex-col min-w-0">
+      {/* Mobile Backdrop */}
+      {sidebarOpen && (
+        <div 
+          className="fixed inset-0 bg-black/80 z-40 md:hidden backdrop-blur-sm" 
+          onClick={() => setSidebarOpen(false)} 
+        />
+      )}
+      
+      {/* Sidebar with mobile transform */}
+      <div className={`fixed inset-y-0 left-0 z-50 transform transition-transform duration-300 md:relative md:translate-x-0 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+        <Sidebar />
+      </div>
+
+      <div className="flex-1 flex flex-col min-w-0 w-full overflow-hidden">
         {/* Top Header */}
-        <header className="h-16 border-b border-slate-800 bg-slate-950/40 backdrop-blur-md px-8 flex items-center justify-between sticky top-0 z-40">
-          <div className="flex items-center gap-2">
-            <span className="text-xs font-bold text-slate-500 bg-slate-800/60 px-2.5 py-1 rounded-md border border-slate-700/20">
+        <header className="h-16 border-b border-slate-800 bg-slate-950/40 backdrop-blur-md px-4 sm:px-8 flex items-center justify-between sticky top-0 z-30">
+          <div className="flex items-center gap-2 sm:gap-4">
+            <button 
+              className="md:hidden p-2 -ml-2 text-slate-400 hover:text-white"
+              onClick={() => setSidebarOpen(true)}
+            >
+              <Menu className="w-5 h-5" />
+            </button>
+            <span className="text-[10px] sm:text-xs font-bold text-slate-500 bg-slate-800/60 px-2 sm:px-2.5 py-1 rounded-md border border-slate-700/20">
               PROD ENV
             </span>
           </div>
@@ -135,7 +159,7 @@ const Layout: React.FC = () => {
         </header>
 
         {/* Dynamic Nested Content */}
-        <main className="flex-1 p-8 overflow-y-auto">
+        <main className="flex-1 p-4 sm:p-8 overflow-y-auto">
           <Routes>
             <Route path="/" element={<Dashboard />} />
             <Route path="/sops" element={<SOPBrowser />} />
