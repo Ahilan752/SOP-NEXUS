@@ -33,11 +33,14 @@ export const getDashboardStats = async (req: AuthenticatedRequest, res: Response
       const departmentCount = await Department.countDocuments();
       const totalSops = await SOP.countDocuments({ isDeleted: false });
 
-      // Gather status counts across latest versions
-      const publishedCount = await SOPVersion.distinct('sopId', { status: 'Published' }).then(res => res.length);
-      const pendingCount = await SOPVersion.distinct('sopId', { status: 'Pending Approval' }).then(res => res.length);
-      const draftCount = await SOPVersion.distinct('sopId', { status: 'Draft' }).then(res => res.length);
-      const rejectedCount = await SOPVersion.distinct('sopId', { status: 'Rejected' }).then(res => res.length);
+      // Gather status counts across latest versions (only for non-deleted SOPs)
+      const activeSops = await SOP.find({ isDeleted: false }).select('_id');
+      const activeSopIds = activeSops.map(s => s._id);
+
+      const publishedCount = await SOPVersion.distinct('sopId', { status: 'Published', sopId: { $in: activeSopIds } }).then(res => res.length);
+      const pendingCount = await SOPVersion.distinct('sopId', { status: 'Pending Approval', sopId: { $in: activeSopIds } }).then(res => res.length);
+      const draftCount = await SOPVersion.distinct('sopId', { status: 'Draft', sopId: { $in: activeSopIds } }).then(res => res.length);
+      const rejectedCount = await SOPVersion.distinct('sopId', { status: 'Rejected', sopId: { $in: activeSopIds } }).then(res => res.length);
 
       // Recharts: SOPs per department
       const depts = await Department.find();
